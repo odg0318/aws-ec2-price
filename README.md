@@ -20,6 +20,10 @@ Run with Docker
 	make docker-build
 	docker run -p 8080:8080 -d aws-ec2-price:latest 
 
+Run with Dockerhub
+------------------
+	docker run -p 8080:8080 -d guri/aws-ec2-price
+
 APIs
 ----
 * GET /ec2/regions/:region/instance_types/:instance_type
