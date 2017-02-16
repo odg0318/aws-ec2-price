@@ -11,7 +11,7 @@ This package requires some dependancies:
 
 Run 
 ---
-	./aws-ec2-price --port=[PORT]
+	aws-ec2-price --port=[PORT]
 
 Default port is 8080.
 
