@@ -12,6 +12,8 @@ This package requires some dependancies:
 Usage in golang
 ---------------
 ```go
+import github.com/odg0318/aws-ec2-price
+
 pricing, err := price.NewPricing()
 if err != nil {
 	doSomething()
