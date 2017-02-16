@@ -6,8 +6,8 @@ Installation
 	go get -u github.com/odg0318/aws-ec2-price
 
 This package requires some dependancies:
-* `gin-gonic/gin<https://github.com/gin-gonic/gin>`
-* `urfave/cli<https://github.com/urfave/cli>`
+* [gin-gonic/gin](https://github.com/gin-gonic/gin)
+* [urfave/cli](https://github.com/urfave/cli)
 
 Run 
 ---
