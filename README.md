@@ -18,7 +18,7 @@ Default port is 8080.
 Run with Docker
 ---------------
 	make docker-build
-	docker --rm -p 8080:8080 -d run aws-ec2-price:latest 
+	docker run -p 8080:8080 -d aws-ec2-price:latest 
 
 APIs
 ----
