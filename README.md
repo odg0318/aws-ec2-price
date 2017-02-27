@@ -40,3 +40,7 @@ Run with Docker
 REST APIs
 ---------
 * GET /ec2/regions/:region/instance_types/:instance_type
+
+References
+----------
+* https://aws.amazon.com/ko/blogs/aws/new-aws-price-list-api/
