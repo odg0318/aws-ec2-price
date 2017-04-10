@@ -19,12 +19,19 @@ if err != nil {
 	doSomething()
 }
 
-price, err := pricing.GetPrice("us-east-1", "c4.large")
+instances, err := pricing.GetInstances("us-east-1")
 if err != nil {
 	doSomething()
 }
 
-print(price)
+println(instances)
+
+instance, err := pricing.GetInstance("us-east-1", "c4.large")
+if err != nil {
+	doSomething()
+}
+
+println(instance)
 ```
 
 Run 
@@ -39,6 +46,7 @@ Run with Docker
 
 REST APIs
 ---------
+* GET /ec2/regions/:region
 * GET /ec2/regions/:region/instance_types/:instance_type
 
 References
