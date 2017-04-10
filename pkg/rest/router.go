@@ -20,6 +20,7 @@ func GetRouter() *gin.Engine {
 	router := gin.New()
 	router.NoRoute(notFoundHandler)
 
+	router.GET("/ec2/regions/:region", getEc2PricesHandler)
 	router.GET("/ec2/regions/:region/instance_types/:instance_type", getEc2PriceHandler)
 
 	return router

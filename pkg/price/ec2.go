@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -23,7 +24,7 @@ var (
 	CACHED_PRICING = CachedEc2Pricing{}
 )
 
-type Ec2Pricing struct {
+type ec2Pricing struct {
 	Products map[string]Ec2Product `json:products`
 	Terms    map[string]map[string]map[string]struct {
 		PriceDimensions map[string]struct {
@@ -34,7 +35,8 @@ type Ec2Pricing struct {
 	} `json:terms`
 }
 
-func (ec *Ec2Pricing) GetPrice(region string, instanceType string) (string, error) {
+func (ec *ec2Pricing) GetInstances(region string) ([]*Instance, error) {
+	var instances []*Instance
 	for _, product := range ec.Products {
 		if product.isValid() == false {
 			continue
@@ -44,19 +46,41 @@ func (ec *Ec2Pricing) GetPrice(region string, instanceType string) (string, erro
 			continue
 		}
 
-		if product.isValidInstanceType(instanceType) == false {
-			continue
-		}
-
 		h := fmt.Sprintf("%s.%s", product.Sku, HOURLY_TERM_CODE)
 		r := fmt.Sprintf("%s.%s.%s", product.Sku, HOURLY_TERM_CODE, RATE_CODE)
 
-		price := ec.Terms[REQUIRED_TERM][product.Sku][h].PriceDimensions[r].PricePerUnit.USD
+		usd := ec.Terms[REQUIRED_TERM][product.Sku][h].PriceDimensions[r].PricePerUnit.USD
 
-		return price, nil
+		price, err := strconv.ParseFloat(usd, 64)
+		if err != nil {
+			return nil, errors.New("usd could not be parsed.")
+		}
+
+		instances = append(instances, &Instance{
+			Region: region,
+			Type:   product.InstanceType(),
+			Price:  price,
+		})
 	}
 
-	return "", errors.New("no price")
+	return instances, nil
+}
+
+func (ec *ec2Pricing) GetInstance(region string, instanceType string) (*Instance, error) {
+	instances, err := ec.GetInstances(region)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, instance := range instances {
+		if instance.Type != instanceType {
+			continue
+		}
+
+		return instance, nil
+	}
+
+	return nil, errors.New("there is no matched instance.")
 }
 
 type Ec2Product struct {
@@ -71,16 +95,16 @@ type Ec2Product struct {
 	}
 }
 
+func (ep *Ec2Product) InstanceType() string {
+	return ep.Attributes.InstanceType
+}
+
 func (ep *Ec2Product) isValidRegion(region string) bool {
 	if r, ok := REGIONS[region]; ok == true {
 		return ep.Attributes.Location == r
 	}
 
 	return false
-}
-
-func (ep *Ec2Product) isValidInstanceType(instanceType string) bool {
-	return ep.Attributes.InstanceType == instanceType
 }
 
 func (ep *Ec2Product) isValid() bool {
@@ -105,7 +129,7 @@ func (ep *Ec2Product) isValid() bool {
 }
 
 type CachedEc2Pricing struct {
-	pricing       *Ec2Pricing
+	pricing       *ec2Pricing
 	lastCheckTime time.Time
 }
 
@@ -113,12 +137,12 @@ func (c *CachedEc2Pricing) isExpired() bool {
 	return time.Since(c.lastCheckTime) > time.Duration(24*time.Hour)
 }
 
-func (c *CachedEc2Pricing) update(pricing *Ec2Pricing) {
+func (c *CachedEc2Pricing) update(pricing *ec2Pricing) {
 	c.pricing = pricing
 	c.lastCheckTime = time.Now()
 }
 
-func NewPricing() (*Ec2Pricing, error) {
+func NewPricing() (*ec2Pricing, error) {
 	if CACHED_PRICING.isExpired() == false {
 		return CACHED_PRICING.pricing, nil
 	}
@@ -131,7 +155,7 @@ func NewPricing() (*Ec2Pricing, error) {
 	}
 	defer r.Body.Close()
 
-	pricing := &Ec2Pricing{}
+	pricing := &ec2Pricing{}
 	if err := json.NewDecoder(r.Body).Decode(pricing); err != nil {
 		return nil, err
 	}

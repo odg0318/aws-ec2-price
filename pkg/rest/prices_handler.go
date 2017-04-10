@@ -5,9 +5,8 @@ import (
 	"github.com/odg0318/aws-ec2-price/pkg/price"
 )
 
-func getEc2PriceHandler(context *gin.Context) {
+func getEc2PricesHandler(context *gin.Context) {
 	region := context.Param("region")
-	instanceType := context.Param("instance_type")
 
 	pricing, err := price.NewPricing()
 	if err != nil {
@@ -16,12 +15,12 @@ func getEc2PriceHandler(context *gin.Context) {
 		return
 	}
 
-	instance, err := pricing.GetInstance(region, instanceType)
+	instances, err := pricing.GetInstances(region)
 	if err != nil {
 		context.Error(err)
 		errorHandler(context)
 		return
 	}
 
-	context.JSON(200, instance)
+	context.JSON(200, instances)
 }

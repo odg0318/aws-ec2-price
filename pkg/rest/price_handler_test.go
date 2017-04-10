@@ -11,10 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var (
-	EXPECTED_REGION        = "us-east-1"
-	EXPECTED_INSTANCE_TYPE = "c4.large"
-)
+var ()
 
 func TestGetEc2PriceHandler(t *testing.T) {
 	r := GetRouter()
@@ -22,7 +19,7 @@ func TestGetEc2PriceHandler(t *testing.T) {
 	server := httptest.NewServer(r)
 	defer server.Close()
 
-	url := fmt.Sprintf("%s/ec2/regions/%s/instance_types/%s", server.URL, EXPECTED_REGION, EXPECTED_INSTANCE_TYPE)
+	url := fmt.Sprintf("%s/ec2/regions/%s/instance_types/%s", server.URL, "us-east-1", "c4.large")
 	response, err := http.Get(url)
 
 	assert.Nil(t, err)
@@ -34,8 +31,8 @@ func TestGetEc2PriceHandler(t *testing.T) {
 	price := map[string]string{}
 	err = json.Unmarshal(body, &price)
 
-	assert.Equal(t, EXPECTED_REGION, price["region"])
-	assert.Equal(t, EXPECTED_INSTANCE_TYPE, price["instance_type"])
+	assert.Equal(t, "us-east-1", price["region"])
+	assert.Equal(t, "c4.large", price["type"])
 }
 
 func TestGetEc2PriceHandlerWithInvalid(t *testing.T) {
