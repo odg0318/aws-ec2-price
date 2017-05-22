@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"regexp"
 	"strconv"
 	"time"
 )
@@ -20,6 +21,7 @@ var (
 	REQUIRED_PRODUCT_FAMILY = "Compute Instance"
 	REQUIRED_OS             = "Linux"
 	REQUIRED_LICENSE_MODEL  = "No License required"
+	REQUIRED_USAGE          = "BoxUsage:*"
 
 	CACHED_PRICING = CachedEc2Pricing{}
 )
@@ -92,6 +94,7 @@ type Ec2Product struct {
 		Tenancy         string `json:tenancy`
 		OperatingSystem string `json:operatingSystem`
 		LicenseModel    string `json:licenseModel`
+		UsageType       string `json:usagetype`
 	}
 }
 
@@ -121,6 +124,11 @@ func (ep *Ec2Product) isValid() bool {
 	}
 
 	if ep.Attributes.Tenancy != REQUIRED_TENANCY {
+		return false
+	}
+
+	matched, err := regexp.MatchString(REQUIRED_USAGE, ep.Attributes.UsageType)
+	if err != nil || matched == false {
 		return false
 	}
 
