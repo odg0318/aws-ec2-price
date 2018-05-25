@@ -22,6 +22,7 @@ var (
 	REQUIRED_OS             = "Linux"
 	REQUIRED_LICENSE_MODEL  = "No License required"
 	REQUIRED_USAGE          = "BoxUsage:*"
+	REQUIRED_PREINSTALLEDSW = "NA"
 
 	CACHED_PRICING = CachedEc2Pricing{}
 )
@@ -95,6 +96,7 @@ type Ec2Product struct {
 		OperatingSystem string `json:operatingSystem`
 		LicenseModel    string `json:licenseModel`
 		UsageType       string `json:usagetype`
+		PreInstalledSw  string `json:preInstalledSw`
 	}
 }
 
@@ -124,6 +126,10 @@ func (ep *Ec2Product) isValid() bool {
 	}
 
 	if ep.Attributes.Tenancy != REQUIRED_TENANCY {
+		return false
+	}
+
+	if ep.Attributes.PreInstalledSw != REQUIRED_PREINSTALLEDSW {
 		return false
 	}
 
